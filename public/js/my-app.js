@@ -361,7 +361,7 @@ $( document ).ready( function () {
                             item.data( 'index', l + i );
                             queue[ l + i ].imageData = reader.result;
                             var b64 = canvas.toDataURL( theFile.type );
-                            item.css( 'backgroundImage', 'url(' + b64 + ')' );
+                            item.css( 'backgroundImage', 'url(' + reader.result + ')' );
                             list.append( item );
                             console.log( "queue", queue );
                             toggleDone();
