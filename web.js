@@ -118,7 +118,7 @@ app.post( '/upload', function ( req, res ) {
     console.log( "Original name: " + photo.name + " |||| New name: " + newName );
     photo.mv( './images/' + newName, function ( err ) {
         if ( err ) return res.status( 500 ).send( err );
-    
+
         work(newName, res, req.body.caption, req.body.username, req.body.name);
 
     } );
@@ -157,13 +157,7 @@ var work = ( fileName, res, caption, username, name ) => {
                 var newWidth;
                 var newHeight;
 
-                if ( width > height ) {
-                    newHeight = height * ( maxWidth / width );
-                    newWidth = maxWidth;
-                } else {
-                    newWidth = width * ( maxHeight / height );
-                    newHeight = maxHeight;
-                }
+
                 // canvas.width = newWidth;
                 // canvas.height = newHeight;
 
@@ -208,7 +202,7 @@ var work = ( fileName, res, caption, username, name ) => {
                 if ( !batch ) batch = image.batch();
 
                 if ( port || (!port && height > width) ) {
-                    batch.resize( newWidth, newHeight ).crop( newWidth, (newWidth * 5/4) );
+                    batch.resize( newHeight, newWidth ).crop( newHeight, (newHeight * 5/4) );
                 } else {
                     batch.resize( newWidth, newHeight );
                 }
