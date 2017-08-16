@@ -1,5 +1,5 @@
 node_modules
 /node_modules
 **/node_modules
-images/
+images/*.jpg
 public/img/*_resized.jpg
