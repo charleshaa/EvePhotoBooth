@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+	<title></title>
+	<meta name="description" content="" />
+  	<meta name="keywords" content="" />
+	<meta name="robots" content="" />
+    <meta name="viewport" content="width=320, initial-scale=1">
+	<link rel="stylesheet" type="text/css" href="style.css">
+
+
+</head>
+
+<body>
+	<h1>Upload a picture</h1>
+    <form method="post" action="/upload" encType="multipart/form-data" id="upload">
+        <fieldset>
+            <label for="caption">Caption</label>
+            <textarea name="caption" rows="8" id="caption" placeholder="Caption"></textarea>
+        </fieldset>
+        <fieldset>
+            <label for="image">Image</label>
+            <input type="file" id="image" name="image" accept="image/*">
+        </fieldset>
+        <input type="submit" value="Post">
+    </form>
+	<script type="text/javascript" src="main.js"></script>
+</body>
+</html>
