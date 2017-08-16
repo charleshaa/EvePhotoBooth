@@ -157,7 +157,13 @@ var work = ( fileName, res, caption, username, name ) => {
                 var newWidth;
                 var newHeight;
 
-
+                if ( width > height ) {
+                    newHeight = height * ( maxWidth / width );
+                    newWidth = maxWidth;
+                } else {
+                    newWidth = width * ( maxHeight / height );
+                    newHeight = maxHeight;
+                }
                 // canvas.width = newWidth;
                 // canvas.height = newHeight;
 
@@ -201,7 +207,7 @@ var work = ( fileName, res, caption, username, name ) => {
 
                 if ( !batch ) batch = image.batch();
 
-                if ( port || (!port && height > width) ) {
+                if ( port ) {
                     batch.resize( newHeight, newWidth ).crop( newHeight, (newHeight * 5/4) );
                 } else {
                     batch.resize( newWidth, newHeight );
