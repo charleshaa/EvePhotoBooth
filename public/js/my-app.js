@@ -235,7 +235,8 @@ const upload = ( index ) => {
                     myApp.closeModal('#upload-popup');
                     reset();
                     myApp.confirm(`You have successfully posted ${len} photos to ${INSTAGRAM_USERNAME}. Do you want to see them ?`, 'All is well', () => {
-                        document.location.href = 'https://instagram.com/' + INSTAGRAM_USERNAME;
+                        var url = 'https://instagram.com/' + INSTAGRAM_USERNAME;
+                        window.open(url);
                     });
 
                 }

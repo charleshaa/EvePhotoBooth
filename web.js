@@ -172,7 +172,8 @@ var work = ( fileName, res, caption, username, name ) => {
                     console.log("Height > Width");
                     newWidth = width * ( maxHeight / height );
                     newHeight = maxHeight;
-                    console.log("Should resize to W:" + newWidth + "|H:" + newHeight + "|Orient:" + exifData.tags.orientation);
+                    var orient = exifData ? exifData.tags.orientation : 'N/A';
+                    if(exifData) console.log("Should resize to W:" + newWidth + "|H:" + newHeight + "|Orient:" + orient);
                     origPort = true;
                 }
                 // canvas.width = newWidth;
