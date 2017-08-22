@@ -5,6 +5,8 @@ const isMobile = () => {
 };
 
 
+const INSTAGRAM_USERNAME = 'evephotobooth';
+
 // Initialize your app
 var myApp = new Framework7();
 
@@ -166,31 +168,44 @@ const startUpload = () => {
 
 };
 
-const progress = ( e, index ) => {
+const progress = ( e ) => {
 
     if ( e.lengthComputable ) {
         var max = e.total;
         var current = e.loaded;
 
         var Percentage = ( current * 100 ) / max;
-        console.log( Percentage );
+        myApp.setProgressbar(currentProgressBar, Math.ceil(Percentage));
         if ( Percentage >= 100 ) {
             console.log("Process is at 100 !");
+            startInstagramProcess();
         }
     }
 }
 
-const upload = ( index ) => {
+const updateProgress = cursor => {
+    $('#cursor').text(cursor);
+    myApp.setProgressbar(currentProgressBar, 0);
+};
 
+const reset = () => {
+
+    queue = [];
+    $('.picture-details').remove();
+    toggleDone();
+
+
+};
+
+
+const upload = ( index ) => {
     var picture = queue[ index ];
 
     var formData = new FormData();
 
     formData.append( 'image', picture.file );
-    formData.append( 'caption', picture.caption );
-
-    myApp.showPreloader("Uploading image...");
-
+    if(picture.caption && picture.caption !== '') formData.append( 'caption', picture.caption );
+    updateProgress(index + 1);
 
     $.ajax( {
         type: 'POST',
@@ -200,7 +215,7 @@ const upload = ( index ) => {
             var myXhr = $.ajaxSettings.xhr();
             if ( myXhr.upload ) {
                 myXhr.upload.addEventListener( 'progress', (e) => {
-                    progress(e, index);
+                    progress(e);
                 }, false );
             }
             return myXhr;
@@ -210,25 +225,27 @@ const upload = ( index ) => {
         processData: false,
 
         success: function ( data ) {
-            console.log( data );
-            myApp.hidePreloader();
-            console.log( 'data returned successfully' );
-            myApp.modal( {
-                title: 'Upload successful',
-                afterText: `
-                    <div class="picture-preview">
-                        <img style="max-width: 100%;" src="${data.url}" />
-                    </div>
-                `,
-                buttons: [ {
-                        text: 'OK'
-                    }
-                ]
-            } );
+            console.log(data);
+            if(data.success){
+                if(index < queue.length - 1){
+                    stopInstagramProcess();
+                    upload(index + 1);
+                } else {
+                    var len = queue.length;
+                    myApp.closeModal('#upload-popup');
+                    reset();
+                    myApp.confirm(`You have successfully posted ${len} photos to ${INSTAGRAM_USERNAME}. Do you want to see them ?`, 'All is well', () => {
+                        document.location.href = 'https://instagram.com/' + INSTAGRAM_USERNAME;
+                    });
+
+                }
+            }
+
         },
 
         error: function ( data ) {
             console.log( data );
+            alert("ERROR !");
         }
     } );
 
@@ -236,12 +253,51 @@ const upload = ( index ) => {
 
 };
 
+
+const stopInstagramProcess = () => {
+    if(!$(currentProgressBar).hasClass('color-multi')) return;
+    $(currentProgressBar).removeClass('color-multi progressbar-infinite').addClass('progressbar color-green');
+    $('#instagram-process').hide();
+}
+
+const startInstagramProcess = () => {
+    myApp.setProgressbar(currentProgressBar, 0);
+    if($(currentProgressBar).hasClass('color-multi')) return;
+    $(currentProgressBar).removeClass('progressbar color-green').addClass('color-multi progressbar-infinite');
+    $('#instagram-process').show();
+}
+
 const toggleDone = () => {
     if ( queue.length > 0 ) {
         $( '#upload-all' ).show();
     } else {
         $( '#upload-all' ).hide();
     }
+};
+var currentProgressBar;
+const uploadAll = () => {
+    var len = queue.length;
+    var html = `
+        <div class="popup" id="upload-popup">
+            <div class="content-block">
+                <div class="content-block-inner text-center">
+                    <h2>Uploading ${len} photos...</h2>
+                    <p id="progress-text">Uplaoding photo <span id="cursor">1</span>/${len}</p>
+                    <p><span class="progressbar color-green"><span></span></span></p>
+                </div>
+                <p id="instagram-process" style="display: none;">Uploading picture to instagram...</p>
+            </div>
+        </div>
+    `;
+    var pu = myApp.popup(html, true);
+    $(pu).on('popup:opened', function(){
+        currentProgressBar = $$('#upload-popup .progressbar');
+        myApp.setProgressbar(currentProgressBar, 5);
+    });
+
+    upload(0);
+
+
 };
 
 
@@ -383,6 +439,20 @@ $( document ).ready( function () {
         var index = item.data( 'index' );
         var pictureData = queue[ index ].imageData;
         var prevCaption = queue[ index ].caption || '';
+        var popupHTML = `
+        <div class="popup" id="caption-popup">
+            <div class="picture-preview">
+                <img style="max-width: 100%;" src="${pictureData}" />
+            </div>
+            <div class="content-block">
+                <div class="enter-caption row">
+                    <textarea class="col-100" rows="5" name="" id="caption" placeholder="Add a caption">${prevCaption}</textarea>
+                </div>
+            </div>
+            <p class="button-group">
+            </p>
+        </div>
+        `;
         var modal = myApp.modal( {
             afterText: `
                 <div class="picture-preview">
@@ -422,6 +492,9 @@ $( document ).ready( function () {
     $( 'body' ).on( 'modal:closed', toggleDone );
 
     $('body').on('click', '#upload-all', function(e){
-        upload(0);
+        var num = queue.length;
+        var text = `You can add captions to photos by clicking on their thumbnail. If you are ready, tap OK.`;
+        var title = `You are about to upload ${num} photos to instagram`;
+        myApp.confirm(text, title, uploadAll);
     });
 } );

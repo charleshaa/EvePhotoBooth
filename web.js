@@ -7,10 +7,16 @@ const lwip = require( 'pajk-lwip' );
 const exif = require( 'exif-parser' );
 var bodyParser = require('body-parser');
 var Client = require( 'instagram-private-api' ).V1;
-var device = new Client.Device( 'charleshaa' );
-var storage = new Client.CookieFileStorage( __dirname + '/cookies/antoineetcoralie.json' );
+var device = new Client.Device( 'eve' );
+var storage = new Client.CookieFileStorage( __dirname + '/cookies/evephotobooth.json' );
 var fs = require( 'fs' );
 const net = require( 'net' );
+
+
+const INSTAGRAM_USERNAME = 'evephotobooth';
+const INSTAGRAM_PASSWORD = 'Bi1venue!';
+
+
 var s;
 var user;
 
@@ -35,16 +41,16 @@ var makeid = function () {
 };
 
 
-// Client.Session.create(device, storage, 'antoineetcoralie', 'antoineetcoralie2017')
-// 	.then(function(session) {
-//         s = session;
-//         session.getAccount().then(function(account){
-//             console.log(account.params);
-//             user = account;
-//         });
-//
-// 		return session;
-// 	});
+Client.Session.create(device, storage, INSTAGRAM_USERNAME, INSTAGRAM_PASSWORD)
+	.then(function(session) {
+        s = session;
+        session.getAccount().then(function(account){
+            console.log(account.params);
+            user = account;
+        });
+
+		return session;
+	});
 
 app.use( fileUpload() );
 app.use( express.static( path.join( __dirname, 'public' ) ) );
@@ -156,20 +162,25 @@ var work = ( fileName, res, caption, username, name ) => {
                 var width = image.width();
                 var newWidth;
                 var newHeight;
-
+                var port = false;
+                var origPort = false;
                 if ( width > height ) {
+                    console.log("Width > Height");
                     newHeight = height * ( maxWidth / width );
                     newWidth = maxWidth;
                 } else {
+                    console.log("Height > Width");
                     newWidth = width * ( maxHeight / height );
                     newHeight = maxHeight;
+                    console.log("Should resize to W:" + newWidth + "|H:" + newHeight + "|Orient:" + exifData.tags.orientation);
+                    origPort = true;
                 }
                 // canvas.width = newWidth;
                 // canvas.height = newHeight;
 
 
                 //var newHeight = width * 5 / 4;
-                var port = false;
+
                 var batch;
                 if ( exifData ) {
                     switch ( exifData.tags.Orientation ) {
@@ -210,31 +221,37 @@ var work = ( fileName, res, caption, username, name ) => {
                 if ( port ) {
                     batch.resize( newHeight, newWidth ).crop( newHeight, (newHeight * 5/4) );
                 } else {
-                    batch.resize( newWidth, newHeight );
+                    if(origPort){
+                        batch.resize( newWidth, newHeight ).crop( newWidth, (newWidth * 5/4) );
+                    } else {
+                        batch.resize( newWidth, newHeight );
+                    }
+
                 }
-                batch.writeFile( './public/img/' + fileInfo[ 0 ] + '_resized.jpg' /*'./resized/' + fileInfo[ 0 ] + '_resized.jpg' */, function ( err ) {
+                batch.writeFile( './resized/' + fileInfo[ 0 ] + '_resized.jpg' /*'./resized/' + fileInfo[ 0 ] + '_resized.jpg' */, function ( err ) {
                     if ( err ) return console.log( err );
                     console.log( 'Wrote file ./resized/' + fileInfo[ 0 ] + '_resized.jpg' );
-                    res.json({
-                        success: true,
-                        url: '/img/' + fileInfo[ 0 ] + '_resized.jpg'
-                    });
-                    // Client.Upload.photo( s, './resized/' + fileInfo[ 0 ] + '_resized.jpg' )
-                    //     .then( function ( upload ) {
-                    //         console.log( "Upload ID: " + upload.params.uploadId );
-                    //         fs.unlink( './images/' + fileName, function ( err ) {
-                    //             if ( err ) return console.log( err );
-                    //             console.log( 'file ./images/' + fileName + ' deleted successfully' );
-                    //         } );
-                    //         fs.unlink( './resized/' + fileInfo[ 0 ] + '_resized.jpg', function ( err ) {
-                    //             if ( err ) return console.log( err );
-                    //             console.log( 'file ./resized/' + fileInfo[ 0 ] + '_resized.jpg deleted successfully' );
-                    //         } );
-                    //         return Client.Media.configurePhoto( s, upload.params.uploadId, caption );
-                    //     } )
-                    //     .then( function ( medium ) {
-                    //         console.log( medium.params );
-                    //     } );
+
+                    Client.Upload.photo( s, './resized/' + fileInfo[ 0 ] + '_resized.jpg' )
+                        .then( function ( upload ) {
+                            console.log( "Upload ID: " + upload.params.uploadId );
+                            // fs.unlink( './images/' + fileName, function ( err ) {
+                            //     if ( err ) return console.log( err );
+                            //     console.log( 'file ./images/' + fileName + ' deleted successfully' );
+                            // } );
+                            // fs.unlink( './resized/' + fileInfo[ 0 ] + '_resized.jpg', function ( err ) {
+                            //     if ( err ) return console.log( err );
+                            //     console.log( 'file ./resized/' + fileInfo[ 0 ] + '_resized.jpg deleted successfully' );
+                            // } );
+                            return Client.Media.configurePhoto( s, upload.params.uploadId, caption );
+                        } )
+                        .then( function ( medium ) {
+                            res.json({
+                                success: true,
+                                caption: caption,
+                                url: '/img/' + fileInfo[ 0 ] + '_resized.jpg'
+                            });
+                        } );
                 } );
             } );
         } );
