@@ -209,7 +209,11 @@ const upload = ( index ) => {
     var formData = new FormData();
 
     formData.append( 'image', picture.file );
-    if(picture.caption && picture.caption !== '') formData.append( 'caption', picture.caption );
+    if(picture.caption) {
+        formData.append( 'caption', picture.caption );
+    } else {
+        formData.append('caption', 'No caption');
+    }
 
     if(CREDS){
         formData.append('uploaderName', CREDS.name);
