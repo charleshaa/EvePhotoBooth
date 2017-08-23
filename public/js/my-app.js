@@ -7,15 +7,15 @@ const isMobile = () => {
 
 const INSTAGRAM_USERNAME = 'evephotobooth';
 
-var CREDS = localStorage.getItem('creds');
-if(CREDS) CREDS = JSON.parse(CREDS);
+var CREDS = localStorage.getItem( 'creds' );
+if ( CREDS ) CREDS = JSON.parse( CREDS );
 
 // Initialize your app
-var myApp = new Framework7({
+var myApp = new Framework7( {
     material: true,
     fastClicks: true,
     materialRipple: true
-});
+} );
 
 // Export selectors engine
 var $$ = Dom7;
@@ -124,10 +124,10 @@ const onSelect = e => {
     }
 };
 
-const isFullScreen = () => ('standalone' in navigator &&
-                                !navigator.standalone &&
-                                (/iphone|ipod|ipad/gi).test(navigator.platform) &&
-                                (/Safari/i).test(navigator.appVersion));
+const isFullScreen = () => ( 'standalone' in navigator &&
+    !navigator.standalone &&
+    ( /iphone|ipod|ipad/gi ).test( navigator.platform ) &&
+    ( /Safari/i ).test( navigator.appVersion ) );
 
 const canUpload = () => window.File && window.FileReader && window.FormData;
 
@@ -142,23 +142,23 @@ const progress = ( e ) => {
         var current = e.loaded;
 
         var Percentage = ( current * 100 ) / max;
-        myApp.setProgressbar(currentProgressBar, Math.ceil(Percentage));
+        myApp.setProgressbar( currentProgressBar, Math.ceil( Percentage ) );
         if ( Percentage >= 100 ) {
-            console.log("Process is at 100 !");
+            console.log( "Process is at 100 !" );
             startInstagramProcess();
         }
     }
 }
 
 const updateProgress = cursor => {
-    $('#cursor').text(cursor);
-    myApp.setProgressbar(currentProgressBar, 0);
+    $( '#cursor' ).text( cursor );
+    myApp.setProgressbar( currentProgressBar, 0 );
 };
 
 const reset = () => {
 
     queue = [];
-    $('.picture-details').remove();
+    $( '.picture-details' ).remove();
     toggleDone();
 
 
@@ -171,18 +171,18 @@ const upload = ( index ) => {
     var formData = new FormData();
 
     formData.append( 'image', picture.file );
-    if(picture.caption) {
+    if ( picture.caption ) {
         formData.append( 'caption', picture.caption );
     } else {
-        formData.append('caption', 'No caption');
+        formData.append( 'caption', 'No caption' );
     }
 
-    if(CREDS){
-        formData.append('uploaderName', CREDS.name);
-        formData.append('instagramHandle', CREDS.handle);
+    if ( CREDS ) {
+        formData.append( 'uploaderName', CREDS.name );
+        formData.append( 'instagramHandle', CREDS.handle );
     }
 
-    updateProgress(index + 1);
+    updateProgress( index + 1 );
 
     $.ajax( {
         type: 'POST',
@@ -191,8 +191,8 @@ const upload = ( index ) => {
         xhr: function () {
             var myXhr = $.ajaxSettings.xhr();
             if ( myXhr.upload ) {
-                myXhr.upload.addEventListener( 'progress', (e) => {
-                    progress(e);
+                myXhr.upload.addEventListener( 'progress', ( e ) => {
+                    progress( e );
                 }, false );
             }
             return myXhr;
@@ -202,19 +202,19 @@ const upload = ( index ) => {
         processData: false,
 
         success: function ( data ) {
-            console.log(data);
-            if(data.success){
-                if(index < queue.length - 1){
+            console.log( data );
+            if ( data.success ) {
+                if ( index < queue.length - 1 ) {
                     stopInstagramProcess();
-                    upload(index + 1);
+                    upload( index + 1 );
                 } else {
                     var len = queue.length;
-                    myApp.closeModal('#upload-popup');
+                    myApp.closeModal( '#upload-popup' );
                     reset();
-                    myApp.confirm(`You have successfully posted ${len} photos to ${INSTAGRAM_USERNAME}. Do you want to see them ?`, 'All is well', () => {
+                    myApp.confirm( `You have successfully posted ${len} photos to ${INSTAGRAM_USERNAME}. Do you want to see them ?`, 'All is well', () => {
                         var url = 'https://instagram.com/' + INSTAGRAM_USERNAME;
-                        window.open(url);
-                    });
+                        window.open( url );
+                    } );
 
                 }
             }
@@ -223,7 +223,7 @@ const upload = ( index ) => {
 
         error: function ( data ) {
             console.log( data );
-            alert("ERROR !");
+            alert( "ERROR !" );
         }
     } );
 
@@ -233,16 +233,16 @@ const upload = ( index ) => {
 
 
 const stopInstagramProcess = () => {
-    if(!$(currentProgressBar).hasClass('color-multi')) return;
-    $(currentProgressBar).removeClass('color-multi progressbar-infinite').addClass('progressbar color-green');
-    $('#instagram-process').hide();
+    if ( !$( currentProgressBar ).hasClass( 'color-multi' ) ) return;
+    $( currentProgressBar ).removeClass( 'color-multi progressbar-infinite' ).addClass( 'progressbar color-green' );
+    $( '#instagram-process' ).hide();
 }
 
 const startInstagramProcess = () => {
-    myApp.setProgressbar(currentProgressBar, 0);
-    if($(currentProgressBar).hasClass('color-multi')) return;
-    $(currentProgressBar).removeClass('progressbar color-green').addClass('color-multi progressbar-infinite');
-    $('#instagram-process').show();
+    myApp.setProgressbar( currentProgressBar, 0 );
+    if ( $( currentProgressBar ).hasClass( 'color-multi' ) ) return;
+    $( currentProgressBar ).removeClass( 'progressbar color-green' ).addClass( 'color-multi progressbar-infinite' );
+    $( '#instagram-process' ).show();
 }
 
 const toggleDone = () => {
@@ -275,13 +275,13 @@ const uploadAll = () => {
             </div>
         </div>
     `;
-    var pu = myApp.popup(html, true);
-    $(pu).on('popup:opened', function(){
-        currentProgressBar = $$('#upload-popup .progressbar');
-        myApp.setProgressbar(currentProgressBar, 5);
-    });
+    var pu = myApp.popup( html, true );
+    $( pu ).on( 'popup:opened', function () {
+        currentProgressBar = $$( '#upload-popup .progressbar' );
+        myApp.setProgressbar( currentProgressBar, 5 );
+    } );
 
-    upload(0);
+    upload( 0 );
 
 
 };
@@ -297,11 +297,11 @@ $( document ).ready( function () {
     }
 
     setTimeout( () => {
-        if(!isFullScreen() && isMobile()){
-            myApp.alert('It looks like you are on a mobile browser. Please add this app to your Homescreen to enjoy a much better experience.', 'Add a shortcut !');
+        if ( !isFullScreen() && isMobile() ) {
+            myApp.alert( 'It looks like you are on a mobile browser. Please add this app to your Homescreen to enjoy a much better experience.', 'Add a shortcut !' );
         }
-        if(!CREDS) myApp.loginScreen();
-        console.log(CREDS);
+        if ( !CREDS ) myApp.loginScreen();
+        console.log( CREDS );
         if ( !canUpload() ) fileUploadNotSupported();
     }, 1000 );
     var body = $( 'body' );
@@ -463,18 +463,18 @@ $( document ).ready( function () {
     //input.on( 'change', onSelect );
     $( 'body' ).on( 'modal:closed', toggleDone );
 
-    $('body').on('click', '#upload-all', function(e){
+    $( 'body' ).on( 'click', '#upload-all', function ( e ) {
         var num = queue.length;
         var text = `You can add captions to photos by clicking on their thumbnail. If you are ready, tap OK.`;
         var title = `Upload ${num} photos to @${INSTAGRAM_USERNAME}'s Instagram ?`;
-        myApp.confirm(text, title, uploadAll);
-    });
+        myApp.confirm( text, title, uploadAll );
+    } );
 
-    $('#save-creds').on('click', function(){
-        if (CREDS) return;
-        var name = $('#creds-name').val();
-        var handle = $('#creds-handle').val();
-        if(name === '' && handle === '') {
+    $( '#save-creds' ).on( 'click', function () {
+        if ( CREDS ) return;
+        var name = $( '#creds-name' ).val();
+        var handle = $( '#creds-handle' ).val();
+        if ( name === '' && handle === '' ) {
             return myApp.closeModal();
         }
         var obj = {
@@ -482,8 +482,8 @@ $( document ).ready( function () {
             handle: handle
         };
         CREDS = obj;
-        localStorage.setItem('creds', JSON.stringify(obj));
+        localStorage.setItem( 'creds', JSON.stringify( obj ) );
         myApp.closeModal();
-    });
+    } );
 
 } );

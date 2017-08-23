@@ -5,7 +5,7 @@ const fileUpload = require( 'express-fileupload' );
 const os = require( 'os' );
 const lwip = require( 'pajk-lwip' );
 const exif = require( 'exif-parser' );
-var bodyParser = require('body-parser');
+var bodyParser = require( 'body-parser' );
 var Client = require( 'instagram-private-api' ).V1;
 var device = new Client.Device( 'eve' );
 var storage = new Client.CookieFileStorage( __dirname + '/cookies/evephotobooth.json' );
@@ -41,21 +41,21 @@ var makeid = function () {
 };
 
 
-Client.Session.create(device, storage, INSTAGRAM_USERNAME, INSTAGRAM_PASSWORD)
-	.then(function(session) {
+Client.Session.create( device, storage, INSTAGRAM_USERNAME, INSTAGRAM_PASSWORD )
+    .then( function ( session ) {
         s = session;
-        session.getAccount().then(function(account){
-            console.log(account.params);
+        session.getAccount().then( function ( account ) {
+            console.log( account.params );
             user = account;
-        });
+        } );
 
-		return session;
-	});
+        return session;
+    } );
 
 app.use( fileUpload() );
 app.use( express.static( path.join( __dirname, 'public' ) ) );
-app.use(bodyParser.urlencoded());
-app.use(bodyParser.json());
+app.use( bodyParser.urlencoded() );
+app.use( bodyParser.json() );
 
 app.get( '/', function ( req, res ) {
     res.sendFile( path.join( __dirname + '/index.html' ) );
@@ -99,7 +99,7 @@ app.get( '/control', function ( req, res ) {
 
 app.post( '/upload', function ( req, res ) {
     if ( !req.files ) return res.status( 400 ).send( 'No files were uploaded.' );
-    console.log("REQ body", req.body);
+    console.log( "REQ body", req.body );
     var rand_id = makeid();
     var photo = req.files.image;
     var info = photo.name.split( '.' );
@@ -108,19 +108,19 @@ app.post( '/upload', function ( req, res ) {
     photo.mv( './images/' + newName, function ( err ) {
         if ( err ) return res.status( 500 ).send( err );
 
-        work(newName, res, req.body.caption, req.body.instagramHandle, req.body.uploaderName );
+        work( newName, res, req.body.caption, req.body.instagramHandle, req.body.uploaderName );
 
     } );
 
 } );
 
 var work = ( fileName, res, caption, username, name ) => {
-    if ( !user && !s ) return res.json({ success: false, error: 'No instagram' });
-    if(!caption) caption = '';
-    if(name && name !== ''){
+    if ( !user && !s ) return res.json( { success: false, error: 'No instagram' } );
+    if ( !caption ) caption = '';
+    if ( name && name !== '' ) {
         caption += ' - Uploaded by ' + name;
     }
-    if(username && username !== ''){
+    if ( username && username !== '' ) {
         caption += ' - @' + username;
     }
 
@@ -149,15 +149,15 @@ var work = ( fileName, res, caption, username, name ) => {
                 var port = false;
                 var origPort = false;
                 if ( width > height ) {
-                    console.log("Width > Height");
+                    console.log( "Width > Height" );
                     newHeight = height * ( maxWidth / width );
                     newWidth = maxWidth;
                 } else {
-                    console.log("Height > Width");
+                    console.log( "Height > Width" );
                     newWidth = width * ( maxHeight / height );
                     newHeight = maxHeight;
                     var orient = exifData ? exifData.tags.orientation : 'N/A';
-                    if(exifData) console.log("Should resize to W:" + newWidth + "|H:" + newHeight + "|Orient:" + orient);
+                    if ( exifData ) console.log( "Should resize to W:" + newWidth + "|H:" + newHeight + "|Orient:" + orient );
                     origPort = true;
                 }
 
@@ -199,16 +199,16 @@ var work = ( fileName, res, caption, username, name ) => {
                 if ( !batch ) batch = image.batch();
 
                 if ( port ) {
-                    batch.resize( newHeight, newWidth ).crop( newHeight, (newHeight * 5/4) );
+                    batch.resize( newHeight, newWidth ).crop( newHeight, ( newHeight * 5 / 4 ) );
                 } else {
-                    if(origPort){
-                        batch.resize( newWidth, newHeight ).crop( newWidth, (newWidth * 5/4) );
+                    if ( origPort ) {
+                        batch.resize( newWidth, newHeight ).crop( newWidth, ( newWidth * 5 / 4 ) );
                     } else {
                         batch.resize( newWidth, newHeight );
                     }
 
                 }
-                batch.writeFile( './resized/' + fileInfo[ 0 ] + '_resized.jpg' /*'./resized/' + fileInfo[ 0 ] + '_resized.jpg' */, function ( err ) {
+                batch.writeFile( './resized/' + fileInfo[ 0 ] + '_resized.jpg' /*'./resized/' + fileInfo[ 0 ] + '_resized.jpg' */ , function ( err ) {
                     if ( err ) return console.log( err );
                     console.log( 'Wrote file ./resized/' + fileInfo[ 0 ] + '_resized.jpg' );
 
@@ -226,11 +226,11 @@ var work = ( fileName, res, caption, username, name ) => {
                             return Client.Media.configurePhoto( s, upload.params.uploadId, caption );
                         } )
                         .then( function ( medium ) {
-                            res.json({
+                            res.json( {
                                 success: true,
                                 caption: caption,
                                 url: '/img/' + fileInfo[ 0 ] + '_resized.jpg'
-                            });
+                            } );
                         } );
                 } );
             } );
