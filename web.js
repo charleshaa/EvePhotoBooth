@@ -97,23 +97,6 @@ app.get( '/control', function ( req, res ) {
     res.send( "Performed action : " + action + "" );
 } );
 
-// app.post('/upload', function (req, res) {
-//
-//     if (!req.files) return res.status(400).send('No files were uploaded.');
-// 	var rand_id = makeid();
-//     var photo = req.files.image;
-// 	var info = photo.name.split('.');
-// 	var newName =rand_id + '.' + info[1];
-// 	console.log("Original name: " + photo.name + " |||| New name: " + newName);
-//     photo.mv('./images/' + newName, function(err){
-//         if(err) return res.status(500).send(err);
-//         res.sendFile(path.join(__dirname + '/success.html'));
-//         work(newName, req.body.caption, req.body.username, req.body.name);
-//
-//     });
-//
-// });
-
 app.post( '/upload', function ( req, res ) {
     if ( !req.files ) return res.status( 400 ).send( 'No files were uploaded.' );
     console.log("REQ body", req.body);
@@ -132,7 +115,7 @@ app.post( '/upload', function ( req, res ) {
 } );
 
 var work = ( fileName, res, caption, username, name ) => {
-    //if ( !user && !s ) return res.json({ success: false, error: 'No instagram' });
+    if ( !user && !s ) return res.json({ success: false, error: 'No instagram' });
     if(!caption) caption = '';
     if(name && name !== ''){
         caption += ' - Uploaded by ' + name;
@@ -177,11 +160,6 @@ var work = ( fileName, res, caption, username, name ) => {
                     if(exifData) console.log("Should resize to W:" + newWidth + "|H:" + newHeight + "|Orient:" + orient);
                     origPort = true;
                 }
-                // canvas.width = newWidth;
-                // canvas.height = newHeight;
-
-
-                //var newHeight = width * 5 / 4;
 
                 var batch;
                 if ( exifData ) {
@@ -258,28 +236,11 @@ var work = ( fileName, res, caption, username, name ) => {
             } );
         } );
     }
-    // else if(['mp4', 'm4v', 'mov', 'MOV', 'MP4', 'M4V'].indexOf(ext) >= 0) {
-    // 	// Video
-    // 	console.log("Uploading video...");
-    // 	Client.Upload.video(s, './images/' + fileName, './images/hudu_banner.jpg')
-    // 		.then(function(upload) {
-    // 			console.log("Upload: ", upload);
-    // 			console.log("Video Upload ID: " + upload.uploadId);
-    //             uploadedFiles.push(fileName);
-    // 			return Client.Media.configureVideo(s, upload.uploadId, caption, upload.durationms);
-    // 		})
-    // 		.then(function(medium) {
-    // 			// we configure medium, it is now visible with caption
-    // 			console.log(medium.params);
-    // 		});
-    //
-    // }
-
 
 };
 
 
 
 app.listen( app.get( 'port' ), function () {
-    console.log( 'Example app listening on port ' + app.get( 'port' ) )
+    console.log( 'App listening on port ' + app.get( 'port' ) )
 } );
