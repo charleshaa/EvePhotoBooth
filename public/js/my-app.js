@@ -162,10 +162,10 @@ const onSelect = e => {
     }
 };
 
-const createPreview = img => {
-
-
-};
+const isFullScreen = () => ('standalone' in navigator &&
+                                !navigator.standalone &&
+                                (/iphone|ipod|ipad/gi).test(navigator.platform) &&
+                                (/Safari/i).test(navigator.appVersion));
 
 const canUpload = () => window.File && window.FileReader && window.FormData;
 
@@ -335,6 +335,9 @@ $( document ).ready( function () {
     }
 
     setTimeout( () => {
+        if(!isFullScreen() && isMobile()){
+            myApp.alert('It looks like you are on a mobile browser. Please add this app to your Homescreen to enjoy a much better experience.', 'Add a shortcut !');
+        }
         if(!CREDS) myApp.loginScreen();
         console.log(CREDS);
         if ( !canUpload() ) fileUploadNotSupported();
@@ -501,7 +504,7 @@ $( document ).ready( function () {
     $('body').on('click', '#upload-all', function(e){
         var num = queue.length;
         var text = `You can add captions to photos by clicking on their thumbnail. If you are ready, tap OK.`;
-        var title = `You are about to upload ${num} photos to instagram`;
+        var title = `Upload ${num} photos to @${INSTAGRAM_USERNAME}'s Instagram ?`;
         myApp.confirm(text, title, uploadAll);
     });
 
