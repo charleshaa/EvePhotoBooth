@@ -8,7 +8,11 @@ const isMobile = () => {
 const INSTAGRAM_USERNAME = 'evephotobooth';
 
 // Initialize your app
-var myApp = new Framework7();
+var myApp = new Framework7({
+    material: true,
+    fastClicks: true,
+    materialRipple: true
+});
 
 // Export selectors engine
 var $$ = Dom7;
@@ -16,10 +20,8 @@ var $$ = Dom7;
 // Add view
 var mainView = myApp.addView( '.view-main', {
     // Because we use fixed-through navbar we can enable dynamic navbar
-    dynamicNavbar: true,
-    material: true,
-    fastClicks: true,
-    materialRipple: true
+    dynamicNavbar: true
+
 } );
 
 myApp.params.modalPopupCloseByOutside = true;
@@ -279,7 +281,7 @@ var currentProgressBar;
 const uploadAll = () => {
     var len = queue.length;
     var html = `
-        <div class="popup" id="upload-popup">
+        <div class="popup layout-dark" id="upload-popup">
             <div class="content-block">
                 <div class="content-block-inner text-center">
                     <h2>Uploading ${len} photos...</h2>
@@ -343,41 +345,6 @@ $( document ).ready( function () {
         for ( let i = 0, l = queue.length, f; f = files[ i ]; i++ ) {
             console.log( f.name );
             EXIF.getData( f, function () {
-
-                // switch ( imgObject.orientation ) {
-                //     case 2:
-                //         // batch = image.batch().flip( 'x' ); // top-right - flip horizontal
-                //
-                //         break;
-                //     case 3:
-                //         // batch = image.batch().rotate( 180 ); // bottom-right - rotate 180
-                //
-                //         break;
-                //     case 4:
-                //         // batch = image.batch().flip( 'y' ); // bottom-left - flip vertically
-                //
-                //         break;
-                //     case 5:
-                //         // batch = image.batch().rotate( 90 ).flip( 'x' ); // left-top - rotate 90 and flip horizontal
-                //
-                //         port = true;
-                //         break;
-                //     case 6:
-                //         // batch = image.batch().rotate( 90 ); // right-top - rotate 90
-                //
-                //         port = true;
-                //         break;
-                //     case 7:
-                //         // batch = image.batch().rotate( 270 ).flip( 'x' ); // right-bottom - rotate 270 and flip horizontal
-                //
-                //         port = true;
-                //         break;
-                //     case 8:
-                //         // batch = image.batch().rotate( 270 ); // left-bottom - rotate 270
-                //
-                //         port = true;
-                //         break;
-                // }
                 queue.push( {
                     time: EXIF.getTag( this, "DateTime" ),
                     height: EXIF.getTag( this, "PixelYDimension" ),
@@ -445,13 +412,19 @@ $( document ).ready( function () {
             <div class="picture-preview">
                 <img style="max-width: 100%;" src="${pictureData}" />
             </div>
-            <div class="content-block">
-                <div class="enter-caption row">
-                    <textarea class="col-100" rows="5" name="" id="caption" placeholder="Add a caption">${prevCaption}</textarea>
-                </div>
+            <div class="list-block">
+                <ul>
+                    <li class="align-top">
+                      <div class="item-content">
+                        <div class="item-inner">
+                          <div class="item-input">
+                              <textarea class="col-100" rows="5" name="" id="caption" placeholder="Add a caption">${prevCaption}</textarea>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                </ul>
             </div>
-            <p class="button-group">
-            </p>
         </div>
         `;
         var modal = myApp.modal( {
@@ -459,8 +432,18 @@ $( document ).ready( function () {
                 <div class="picture-preview">
                     <img style="max-width: 100%;" src="${pictureData}" />
                 </div>
-                <div class="enter-caption row">
-                    <textarea style="padding: 15px;" class="col-100" rows="5" name="" id="caption" placeholder="Add a caption">${prevCaption}</textarea>
+                <div class="list-block">
+                    <ul>
+                        <li class="align-top">
+                          <div class="item-content">
+                            <div class="item-inner">
+                              <div class="item-input">
+                                  <textarea class="col-100" rows="5" name="" id="caption" placeholder="Add a caption">${prevCaption}</textarea>
+                              </div>
+                            </div>
+                          </div>
+                        </li>
+                    </ul>
                 </div>
             `,
             buttons: [ {
