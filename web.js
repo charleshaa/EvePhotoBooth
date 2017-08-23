@@ -133,13 +133,14 @@ app.post( '/upload', function ( req, res ) {
 
 var work = ( fileName, res, caption, username, name ) => {
     //if ( !user && !s ) return res.json({ success: false, error: 'No instagram' });
+    if(!caption) caption = '';
     if(name && name !== ''){
         caption += ' - Uploaded by ' + name;
     }
     if(username && username !== ''){
         caption += ' - @' + username;
     }
-    if(!caption) caption = '';
+
     var portrait;
     var fileInfo = fileName.split( '.' );
     var ext = fileInfo[ 1 ];
