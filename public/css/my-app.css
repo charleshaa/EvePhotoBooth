@@ -41,3 +41,9 @@ img{
 .modal-inner{
     padding: 10px;
 }
+
+#instagram-popup iframe{
+    width: 100vw;
+    height: calc(100vh - 44px);
+    border: 0;
+}

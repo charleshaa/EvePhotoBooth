@@ -212,8 +212,9 @@ const upload = ( index ) => {
                     myApp.closeModal( '#upload-popup' );
                     reset();
                     myApp.confirm( `You have successfully posted ${len} photos to ${INSTAGRAM_USERNAME}. Do you want to see them ?`, 'All is well', () => {
-                        var url = 'https://instagram.com/' + INSTAGRAM_USERNAME;
-                        window.open( url );
+                        var url     = 'https://instagram.com/' + INSTAGRAM_USERNAME;
+                        var scheme  = 'instagram://user?username=' + INSTAGRAM_USERNAME;
+                        openScheme(scheme, url);
                     } );
 
                 }
@@ -231,6 +232,53 @@ const upload = ( index ) => {
 
 };
 
+
+const openScheme = (uri, href) => {
+    // set up a timer and start it
+    var start = new Date().getTime(),
+        end,
+        elapsed;
+
+    document.location = uri;
+
+    // end timer
+    end = new Date().getTime();
+
+    elapsed = (end - start);
+
+    // if there's no elapsed time, then the scheme didn't fire, and we head to the url.
+    if (elapsed < 1) {
+        window.open(href, '_blank');
+    }
+}
+
+// Cannot iframe instagram profile, only pictures ! (X-Frame-Options: same-origin)
+const openInstagramPopup = (id) => {
+
+    var html = `
+        <div class="popup" id="instagram-popup">
+            <div class="view">
+                <div class="page layout-dark">
+                    <div class="navbar">
+                        <div class="navbar-inner">
+                            <div class="left">
+                                <a href="#" class="link close-popup">
+                                    <i class="icon icon-back"></i>
+                                    <span>Back</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <iframe src="https://www.instagram.com/p/${id}/embed" frameborder="0"></iframe>
+                </div>
+            </div>
+        </div>
+
+    `;
+
+    myApp.popup(html, true);
+
+};
 
 const stopInstagramProcess = () => {
     if ( !$( currentProgressBar ).hasClass( 'color-multi' ) ) return;
@@ -390,7 +438,7 @@ $( document ).ready( function () {
 
     }
 
-    $( 'body' ).on( 'click', '.picture-details', function ( e ) {
+    body.on( 'click', '.picture-details', function ( e ) {
         var item = $( this );
         var index = item.data( 'index' );
         var pictureData = queue[ index ].imageData;
@@ -461,9 +509,13 @@ $( document ).ready( function () {
 
     } );
     //input.on( 'change', onSelect );
-    $( 'body' ).on( 'modal:closed', toggleDone );
-
-    $( 'body' ).on( 'click', '#upload-all', function ( e ) {
+    body.on( 'modal:closed', toggleDone );
+    $('#open-insta').on('click', function(){
+        var url     = 'https://instagram.com/' + INSTAGRAM_USERNAME;
+        var scheme  = 'instagram://user?username=' + INSTAGRAM_USERNAME;
+        openScheme(scheme, url);
+    });
+    body.on( 'click', '#upload-all', function ( e ) {
         var num = queue.length;
         var text = `You can add captions to photos by clicking on their thumbnail. If you are ready, tap OK.`;
         var title = `Upload ${num} photos to @${INSTAGRAM_USERNAME}'s Instagram ?`;
