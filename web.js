@@ -14,7 +14,7 @@ const net = require( 'net' );
 
 
 const INSTAGRAM_USERNAME = 'evephotobooth';
-const INSTAGRAM_PASSWORD = 'Bi1venue!';
+const INSTAGRAM_PASSWORD = 'eventphotobooth3000';
 
 
 var s;
