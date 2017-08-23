@@ -125,7 +125,7 @@ app.post( '/upload', function ( req, res ) {
     photo.mv( './images/' + newName, function ( err ) {
         if ( err ) return res.status( 500 ).send( err );
 
-        work(newName, res, req.body.caption, req.body.username, req.body.name);
+        work(newName, res, req.body.caption, req.body.instagramHandle, req.body.uploaderName );
 
     } );
 
@@ -133,12 +133,12 @@ app.post( '/upload', function ( req, res ) {
 
 var work = ( fileName, res, caption, username, name ) => {
     //if ( !user && !s ) return res.json({ success: false, error: 'No instagram' });
-    // if(name && name !== ''){
-    // 	caption = name + " - " + caption;
-    // 	if(username && username !== ''){
-    // 			caption += ' - @' + username;
-    // 	}
-    // }
+    if(name && name !== ''){
+        caption += ' - Uploaded by ' + name;
+    }
+    if(username && username !== ''){
+        caption += ' - @' + username;
+    }
     if(!caption) caption = '';
     var portrait;
     var fileInfo = fileName.split( '.' );

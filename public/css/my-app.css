@@ -34,6 +34,10 @@
     max-width: 100%;
 }
 
+img{
+    max-width: 100%;
+}
+
 .modal-inner{
-    /*padding: 0;*/
+    padding: 10px;
 }

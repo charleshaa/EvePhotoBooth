@@ -4,5 +4,3 @@ node_modules
 images/*.jpg
 public/img/*_resized.jpg
 resized/*
-**/*.jpg
-**/*.png

@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="css/my-app.css">
 </head>
 
-<body class="theme-cyan">
+<body class="theme-bluegray">
     <!-- Status bar overlay for fullscreen mode-->
     <div class="statusbar-overlay"></div>
     <!-- Panels overlay-->
@@ -31,7 +31,7 @@
             <div class="navbar">
                 <div class="navbar-inner">
                     <!-- We have home navbar without left link-->
-                    <div class="center sliding">Antoine & Coralie</div>
+                    <div class="center sliding">Coralie & Antoine</div>
                 </div>
             </div>
             <!-- Pages, because we need fixed-through navbar and toolbar, it has additional appropriate classes-->
@@ -39,7 +39,7 @@
                 <!-- Page, data-page contains page name-->
                 <div data-page="index" class="page layout-dark">
                     <!-- Floating Action Button -->
-                    <a href="#" id="add-photo" class="floating-button color-green">
+                    <a href="#" id="add-photo" class="floating-button">
                         <i class="icon icon-plus"></i>
                     </a>
                     <!-- Scrollable page content-->
@@ -49,13 +49,14 @@
                             <div class="content-block-inner">
                                 <p>Ajoutez votre souvenir au compte instagram. Photos de groupe, messages persos, ce que vous voudrez !</p>
                                 <p>Les photos seront ajoutées au compte <a href="http://www.instagram.com/antoineetcoralie" target="_blank" class="external">@antoineetcoralie</a> instantanément.</p>
-
+                                <p class="buttons-row">
+                                    <a href="javascript:;" id="upload-all" style="display: none;" class="button ripple button-fill button-raised">Upload photos</a>
+                                </p>
                             </div>
                         </div>
+                        <p class="text-center" id="add-help" style="color: #777; font-size: 12px; line-height: 2;text-shadow:1px 1px 0px #000;padding: 0 10%;">Add a picture by clicking the "+" on the bottom right. You can add more by clicking it again.</p>
                         <form id="my-form" method="post" action="/upload" encType="multipart/form-data" class="content-block">
-                            <p class="buttons-row">
-                                <a href="javascript:;" id="upload-all" style="display: none;" class="button ripple color-green">Upload photos</a>
-                            </p>
+
                             <ul id="image-list">
 
                             </ul>
@@ -63,6 +64,56 @@
                             <input type="file" id="image-upload-input" name="image" accept="image/*" style="height: 0; visibility:hidden;">
                         </form>
                         <!-- <p><a href="http://www.instagram.com/antoineetcoralie" target="_blank" class="button button-fill color-cyan external">Follow the Instagram account</a></p> -->
+                    </div>
+                    <div class="login-screen">
+                        <div class="view">
+                            <div class="page layout-dark">
+                                <div class="page-content login-screen-content">
+                                    <div class="login-screen-title">Coralie & Antoine</div>
+                                    <p class="text-center">
+                                        <img src="/img/logo.png" style="height: 150px;border-radius: 50%;" alt="">
+                                    </p>
+
+                                    <div class="content-block-title">Welcome to the instagram uploader</div>
+                                    <div class="content-block">
+                                        <div class="content-block-inner">
+                                            <p>Before uploading pictures, you can optionnally specify your name and Instagram username
+                                            so that you are mentioned in the uploads.</p>
+                                        </div>
+                                    </div>
+                                    <form>
+                                        <div class="list-block">
+                                            <ul>
+                                                <li class="item-content">
+                                                    <div class="item-inner">
+                                                        <div class="item-title label">Your name</div>
+                                                        <div class="item-input">
+                                                            <input type="text" id="creds-name" name="name" placeholder="Your name">
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                                <li class="item-content">
+                                                    <div class="item-inner">
+                                                        <div class="item-title label">Your Instagram username</div>
+                                                        <div class="item-input">
+                                                            <input type="text" id="creds-handle" name="handle" placeholder="@username">
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="list-block">
+                                            <ul>
+                                                <li><a href="#" id="save-creds" class="item-link list-button color-blue text-center">Save</a></li>
+                                            </ul>
+                                            <div class="list-block-label">
+                                                <p><a href="#" class="close-login-screen">Dismiss</a></p>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -7,6 +7,9 @@ const isMobile = () => {
 
 const INSTAGRAM_USERNAME = 'evephotobooth';
 
+var CREDS = localStorage.getItem('creds');
+if(CREDS) CREDS = JSON.parse(CREDS);
+
 // Initialize your app
 var myApp = new Framework7({
     material: true,
@@ -207,6 +210,12 @@ const upload = ( index ) => {
 
     formData.append( 'image', picture.file );
     if(picture.caption && picture.caption !== '') formData.append( 'caption', picture.caption );
+
+    if(CREDS){
+        formData.append('uploaderName', CREDS.name);
+        formData.append('instagramHandle', CREDS.handle);
+    }
+
     updateProgress(index + 1);
 
     $.ajax( {
@@ -273,22 +282,30 @@ const startInstagramProcess = () => {
 const toggleDone = () => {
     if ( queue.length > 0 ) {
         $( '#upload-all' ).show();
+        $( '#add-help' ).hide();
     } else {
         $( '#upload-all' ).hide();
+        $( '#add-help' ).show();
     }
 };
 var currentProgressBar;
 const uploadAll = () => {
     var len = queue.length;
     var html = `
-        <div class="popup layout-dark" id="upload-popup">
-            <div class="content-block">
-                <div class="content-block-inner text-center">
-                    <h2>Uploading ${len} photos...</h2>
-                    <p id="progress-text">Uplaoding photo <span id="cursor">1</span>/${len}</p>
-                    <p><span class="progressbar color-green"><span></span></span></p>
+        <div class="popup" id="upload-popup">
+            <div class="view">
+                <div class="page layout-dark">
+                    <div class="page-content">
+                        <div class="content-block" style="margin-top: 150px;">
+                            <div class="content-block-inner text-center">
+                                <h2>Uploading ${len} photos...</h2>
+                                <p id="progress-text">Uplaoding photo <span id="cursor">1</span>/${len}</p>
+                                <p><span class="progressbar color-green"><span></span></span></p>
+                            </div>
+                            <p id="instagram-process" class="text-center" style="color:#aaa;display: none;">Uploading picture to instagram...</p>
+                        </div>
+                    </div>
                 </div>
-                <p id="instagram-process" style="display: none;">Uploading picture to instagram...</p>
             </div>
         </div>
     `;
@@ -314,8 +331,10 @@ $( document ).ready( function () {
     }
 
     setTimeout( () => {
+        if(!CREDS) myApp.loginScreen();
+        console.log(CREDS);
         if ( !canUpload() ) fileUploadNotSupported();
-    }, 3000 );
+    }, 1000 );
     var body = $( 'body' );
     body.on( 'submit', '#my-form', function ( event ) {
         myApp.showPreloader( 'Téléversement... (peut prendre quelques minutes)' );
@@ -481,4 +500,21 @@ $( document ).ready( function () {
         var title = `You are about to upload ${num} photos to instagram`;
         myApp.confirm(text, title, uploadAll);
     });
+
+    $('#save-creds').on('click', function(){
+        if (CREDS) return;
+        var name = $('#creds-name').val();
+        var handle = $('#creds-handle').val();
+        if(name === '' && handle === '') {
+            return myApp.closeModal();
+        }
+        var obj = {
+            name: name,
+            handle: handle
+        };
+        CREDS = obj;
+        localStorage.setItem('creds', JSON.stringify(obj));
+        myApp.closeModal();
+    });
+
 } );
