@@ -14,7 +14,9 @@ if ( CREDS ) CREDS = JSON.parse( CREDS );
 var myApp = new Framework7( {
     material: true,
     fastClicks: true,
-    materialRipple: true
+    materialRipple: true,
+    modalTitle: 'EvePhotoBooth',
+    notificationCloseOnClick: true
 } );
 
 // Export selectors engine
@@ -124,10 +126,14 @@ const onSelect = e => {
     }
 };
 
+const isStandalone = () => ( navigator.userAgent.indexOf( 'iPhone' ) != -1 && window.navigator.standalone == true );
+
 const isFullScreen = () => ( 'standalone' in navigator &&
     !navigator.standalone &&
-    ( /iphone|ipod|ipad/gi ).test( navigator.platform ) &&
-    ( /Safari/i ).test( navigator.appVersion ) );
+    ( /iphone|ipod|ipad/gi )
+    .test( navigator.platform ) &&
+    ( /Safari/i )
+    .test( navigator.appVersion ) );
 
 const canUpload = () => window.File && window.FileReader && window.FormData;
 
@@ -151,14 +157,16 @@ const progress = ( e ) => {
 }
 
 const updateProgress = cursor => {
-    $( '#cursor' ).text( cursor );
+    $( '#cursor' )
+        .text( cursor );
     myApp.setProgressbar( currentProgressBar, 0 );
 };
 
 const reset = () => {
 
     queue = [];
-    $( '.picture-details' ).remove();
+    $( '.picture-details' )
+        .remove();
     toggleDone();
 
 
@@ -212,9 +220,9 @@ const upload = ( index ) => {
                     myApp.closeModal( '#upload-popup' );
                     reset();
                     myApp.confirm( `You have successfully posted ${len} photos to ${INSTAGRAM_USERNAME}. Do you want to see them ?`, 'All is well', () => {
-                        var url     = 'https://instagram.com/' + INSTAGRAM_USERNAME;
-                        var scheme  = 'instagram://user?username=' + INSTAGRAM_USERNAME;
-                        openScheme(scheme, url);
+                        var url = 'https://instagram.com/' + INSTAGRAM_USERNAME;
+                        var scheme = 'instagram://user?username=' + INSTAGRAM_USERNAME;
+                        openScheme( scheme, url );
                     } );
 
                 }
@@ -233,27 +241,21 @@ const upload = ( index ) => {
 };
 
 
-const openScheme = (uri, href) => {
-    // set up a timer and start it
-    var start = new Date().getTime(),
-        end,
-        elapsed;
+const openScheme = ( uri, href ) => {
+
 
     document.location = uri;
-
+    myApp.showIndicator();
+    setTimeout( function () {
+        myApp.hideIndicator();
+        window.open( href, '_blank' );
+    }, 1000 );
     // end timer
-    end = new Date().getTime();
 
-    elapsed = (end - start);
-
-    // if there's no elapsed time, then the scheme didn't fire, and we head to the url.
-    if (elapsed < 1) {
-        window.open(href, '_blank');
-    }
 }
 
 // Cannot iframe instagram profile, only pictures ! (X-Frame-Options: same-origin)
-const openInstagramPopup = (id) => {
+const openInstagramPopup = ( id ) => {
 
     var html = `
         <div class="popup" id="instagram-popup">
@@ -276,30 +278,42 @@ const openInstagramPopup = (id) => {
 
     `;
 
-    myApp.popup(html, true);
+    myApp.popup( html, true );
 
 };
 
 const stopInstagramProcess = () => {
-    if ( !$( currentProgressBar ).hasClass( 'color-multi' ) ) return;
-    $( currentProgressBar ).removeClass( 'color-multi progressbar-infinite' ).addClass( 'progressbar color-green' );
-    $( '#instagram-process' ).hide();
+    if ( !$( currentProgressBar )
+        .hasClass( 'color-multi' ) ) return;
+    $( currentProgressBar )
+        .removeClass( 'color-multi progressbar-infinite' )
+        .addClass( 'progressbar color-green' );
+    $( '#instagram-process' )
+        .hide();
 }
 
 const startInstagramProcess = () => {
     myApp.setProgressbar( currentProgressBar, 0 );
-    if ( $( currentProgressBar ).hasClass( 'color-multi' ) ) return;
-    $( currentProgressBar ).removeClass( 'progressbar color-green' ).addClass( 'color-multi progressbar-infinite' );
-    $( '#instagram-process' ).show();
+    if ( $( currentProgressBar )
+        .hasClass( 'color-multi' ) ) return;
+    $( currentProgressBar )
+        .removeClass( 'progressbar color-green' )
+        .addClass( 'color-multi progressbar-infinite' );
+    $( '#instagram-process' )
+        .show();
 }
 
 const toggleDone = () => {
     if ( queue.length > 0 ) {
-        $( '#upload-all' ).show();
-        $( '#add-help' ).hide();
+        $( '#upload-all' )
+            .show();
+        $( '#add-help' )
+            .hide();
     } else {
-        $( '#upload-all' ).hide();
-        $( '#add-help' ).show();
+        $( '#upload-all' )
+            .hide();
+        $( '#add-help' )
+            .show();
     }
 };
 var currentProgressBar;
@@ -324,127 +338,72 @@ const uploadAll = () => {
         </div>
     `;
     var pu = myApp.popup( html, true );
-    $( pu ).on( 'popup:opened', function () {
-        currentProgressBar = $$( '#upload-popup .progressbar' );
-        myApp.setProgressbar( currentProgressBar, 5 );
-    } );
+    $( pu )
+        .on( 'popup:opened', function () {
+            currentProgressBar = $$( '#upload-popup .progressbar' );
+            myApp.setProgressbar( currentProgressBar, 5 );
+        } );
 
     upload( 0 );
 
 
 };
 
-
-
-$( document ).ready( function () {
-    // init
-
-    if ( !isMobile() ) {
-        console.log( "Desktop" );
-        $( '#image-upload-input' ).attr( 'multiple', 'multiple' );
-    }
-
-    setTimeout( () => {
-        if ( !isFullScreen() && isMobile() ) {
-            myApp.alert( 'It looks like you are on a mobile browser. Please add this app to your Homescreen to enjoy a much better experience.', 'Add a shortcut !' );
+const askForBookmark = () => {
+    myApp.modal( {
+        title: 'Easy Peasy',
+        text: 'It looks like you are on a mobile browser. Please add this app to your Homescreen to enjoy a much better experience.',
+        buttons: [
+            {
+                text: `No, I won't`,
+                onClick: function () {
+                    localStorage.setItem( 'homescreen', 'no' );
+                }
+            },
+            {
+                text: "Ok, will do!",
+                onClick: function () {
+                    myApp.alert( 'Tap on the “Share” button in the bottom toolbar and choose Add to Home Screen.', "How?" );
+                }
+            }
+        ]
+    } );
+};
+var helpShown = false;
+const showHelp = index => {
+    if ( helpShown ) return;
+    myApp.addNotification( {
+        message: `You can add a caption with your picture by clicking on its thumbnail`,
+        title: `Just a tip`,
+        hold: 8000,
+        button: {
+            text: 'Add caption',
+            color: 'yellow',
+            onClick: function () {
+                openCaptionEdit(index, '#image-list li:first-child');
+            }
         }
-        if ( !CREDS ) myApp.loginScreen();
-        console.log( CREDS );
-        if ( !canUpload() ) fileUploadNotSupported();
-    }, 1000 );
-    var body = $( 'body' );
-    body.on( 'submit', '#my-form', function ( event ) {
-        myApp.showPreloader( 'Téléversement... (peut prendre quelques minutes)' );
     } );
-    body.on( 'click', '.camera-action', function ( ev ) {
-        myApp.showPreloader( "Patience..." );
-        var action = $( this ).data( 'command' );
-        console.log( "Should trigger: " + action );
-        $.get( '/control?action=' + action, function ( data ) {
-            console.log( data );
-            setTimeout( function () {
-                myApp.hidePreloader();
-            }, 2500 );
-        } );
-        return false;
-    } );
+    helpShown = true;
+};
 
-
-
-    input = $( '#image-upload-input' );
-    body.on( 'click', '#add-photo', function () {
-        input.trigger( 'click' );
-    } );
-    var adds = 0;
-    document.getElementById( "image-upload-input" ).onchange = function ( e ) {
-        var files = e.target.files;
-        for ( let i = 0, l = queue.length, f; f = files[ i ]; i++ ) {
-            console.log( f.name );
-            EXIF.getData( f, function () {
-                queue.push( {
-                    time: EXIF.getTag( this, "DateTime" ),
-                    height: EXIF.getTag( this, "PixelYDimension" ),
-                    width: EXIF.getTag( this, "PixelXDimension" ),
-                    orientation: EXIF.getTag( this, "Orientation" ),
-                    file: this
-                } );
-                var reader = new FileReader();
-                reader.onerror = () => alert( "Error reading file" );
-                reader.onloadend = ( function ( theFile ) {
-                    return function ( e ) {
-                        var image = new Image();
-                        var canvas = document.createElement( 'canvas' );
-                        var context = canvas.getContext( '2d' );
-                        image.onload = () => {
-                            var maxWidth = 300;
-                            var maxHeight = 300;
-                            var width = image.width;
-                            var height = image.height;
-                            var newWidth;
-                            var newHeight;
-
-                            if ( width > height ) {
-                                newHeight = height * ( maxWidth / width );
-                                newWidth = maxWidth;
-                            } else {
-                                newWidth = width * ( maxHeight / height );
-                                newHeight = maxHeight;
-                            }
-                            canvas.width = newWidth;
-                            canvas.height = newHeight;
-
-                            context.drawImage( image, 0, 0, newWidth, newHeight );
-                            var list = $( '#image-list' );
-                            var item = $( '<li class="picture-details" />' );
-                            var c = $( canvas );
-                            console.log( "Indexes: queue length, i", queue.length, i );
-                            item.data( 'index', l + i );
-                            queue[ l + i ].imageData = reader.result;
-                            var b64 = canvas.toDataURL( theFile.type );
-                            item.css( 'backgroundImage', 'url(' + reader.result + ')' );
-                            list.append( item );
-                            console.log( "queue", queue );
-                            toggleDone();
-                            // Should upload
-                        }
-                        image.src = reader.result;
-                    };
-                } )( this );
-                reader.readAsDataURL( this );
-            } );
-        }
-
-
-
+const removePicture = ( index, item ) => {
+    queue.splice( index, 1 );
+    item.remove();
+    var items = $( '.picture-details' );
+    for ( let i = index; i < queue.length; i++ ) {
+        $( items[ i ] )
+            .data( 'index', parseInt( $( items[ i ] )
+                .data( 'index' ) ) - 1 );
     }
+};
 
-    body.on( 'click', '.picture-details', function ( e ) {
-        var item = $( this );
-        var index = item.data( 'index' );
-        var pictureData = queue[ index ].imageData;
-        var prevCaption = queue[ index ].caption || '';
-        var popupHTML = `
-        <div class="popup" id="caption-popup">
+const openCaptionEdit = ( index, e ) => {
+    var item = (typeof e === 'string') ? $(e) : $( e.target );
+    var pictureData = queue[ index ].imageData;
+    var prevCaption = queue[ index ].caption || '';
+    var modal = myApp.modal( {
+        afterText: `
             <div class="picture-preview">
                 <img style="max-width: 100%;" src="${pictureData}" />
             </div>
@@ -461,81 +420,197 @@ $( document ).ready( function () {
                     </li>
                 </ul>
             </div>
-        </div>
-        `;
-        var modal = myApp.modal( {
-            afterText: `
-                <div class="picture-preview">
-                    <img style="max-width: 100%;" src="${pictureData}" />
-                </div>
-                <div class="list-block">
-                    <ul>
-                        <li class="align-top">
-                          <div class="item-content">
-                            <div class="item-inner">
-                              <div class="item-input">
-                                  <textarea class="col-100" rows="5" name="" id="caption" placeholder="Add a caption">${prevCaption}</textarea>
-                              </div>
-                            </div>
-                          </div>
-                        </li>
-                    </ul>
-                </div>
-            `,
-            buttons: [ {
-                    text: 'Cancel'
+        `,
+        buttons: [
+            {
+                text: 'Cancel'
+            },
+            {
+                text: 'OK',
+                bold: true,
+                onClick: function () {
+                    queue[ index ].caption = $( '#caption' )
+                        .val();
+                }
+        },
+    ]
+    } );
+}
+
+$( document )
+    .ready( function () {
+        // init
+
+        if ( !isMobile() ) {
+            console.log( "Desktop" );
+            $( '#image-upload-input' )
+                .attr( 'multiple', 'multiple' );
+        }
+
+        setTimeout( () => {
+            var optout = localStorage.getItem( 'homescreen' ) === 'no';
+            if ( !isStandalone() && isMobile() && !optout ) {
+                askForBookmark();
+            }
+            if ( !CREDS ) myApp.loginScreen();
+            console.log( CREDS );
+            if ( !canUpload() ) fileUploadNotSupported();
+        }, 1000 );
+        var body = $( 'body' );
+        body.on( 'submit', '#my-form', function ( event ) {
+            myApp.showPreloader( 'Téléversement... (peut prendre quelques minutes)' );
+        } );
+        body.on( 'click', '.camera-action', function ( ev ) {
+            myApp.showPreloader( "Patience..." );
+            var action = $( this )
+                .data( 'command' );
+            console.log( "Should trigger: " + action );
+            $.get( '/control?action=' + action, function ( data ) {
+                console.log( data );
+                setTimeout( function () {
+                    myApp.hidePreloader();
+                }, 2500 );
+            } );
+            return false;
+        } );
+
+
+
+        input = $( '#image-upload-input' );
+
+        body.on( 'click', '#add-photo', function () {
+
+            // If he has already clicked to add one picture, remind him of multiple upload
+
+            if ( queue.length === 1 && !isStandalone() ) {
+                myApp.alert( `Want to add more than one picture ? Add this app to home screen to get multiple uploads on iPhone !` );
+            }
+
+            input.trigger( 'click' );
+        } );
+
+        var adds = 0;
+        document.getElementById( "image-upload-input" )
+            .onchange = function ( e ) {
+                var files = e.target.files;
+                for ( let i = 0, l = queue.length, f; f = files[ i ]; i++ ) {
+                    console.log( f.name );
+                    EXIF.getData( f, function () {
+                        queue.push( {
+                            time: EXIF.getTag( this, "DateTime" ),
+                            height: EXIF.getTag( this, "PixelYDimension" ),
+                            width: EXIF.getTag( this, "PixelXDimension" ),
+                            orientation: EXIF.getTag( this, "Orientation" ),
+                            file: this
+                        } );
+                        var reader = new FileReader();
+                        reader.onerror = () => alert( "Error reading file" );
+                        reader.onloadend = ( function ( theFile ) {
+                            return function ( e ) {
+                                var image = new Image();
+                                var canvas = document.createElement( 'canvas' );
+                                var context = canvas.getContext( '2d' );
+                                image.onload = () => {
+                                    var maxWidth = 300;
+                                    var maxHeight = 300;
+                                    var width = image.width;
+                                    var height = image.height;
+                                    var newWidth;
+                                    var newHeight;
+
+                                    if ( width > height ) {
+                                        newHeight = height * ( maxWidth / width );
+                                        newWidth = maxWidth;
+                                    } else {
+                                        newWidth = width * ( maxHeight / height );
+                                        newHeight = maxHeight;
+                                    }
+                                    canvas.width = newWidth;
+                                    canvas.height = newHeight;
+
+                                    context.drawImage( image, 0, 0, newWidth, newHeight );
+                                    var list = $( '#image-list' );
+                                    var item = $( '<li class="picture-details" />' );
+                                    var c = $( canvas );
+                                    console.log( "Indexes: queue length, i", queue.length, i );
+                                    item.data( 'index', l + i );
+                                    queue[ l + i ].imageData = reader.result;
+                                    var b64 = canvas.toDataURL( theFile.type );
+                                    item.css( 'backgroundImage', 'url(' + reader.result + ')' );
+                                    list.append( item );
+                                    console.log( "queue", queue );
+                                    if ( queue.length === 1 ) showHelp((l + i));
+                                    toggleDone();
+                                }
+                                image.src = reader.result;
+                            };
+                        } )( this );
+                        reader.readAsDataURL( this );
+                    } );
+                }
+
+
+
+            }
+
+        body.on( 'click', '.picture-details', function ( e ) {
+            var item = $( this );
+            var index = item.data( 'index' );
+            // var pictureData = queue[ index ].imageData;
+            // var prevCaption = queue[ index ].caption || '';
+
+            var buttons = [
+                {
+                    text: ( queue[ index ].caption === undefined || queue[ index ].caption == '' ) ? 'Add caption' : 'Edit caption',
+                    onClick: function () {
+                        openCaptionEdit( index, e );
+                    }
                 },
                 {
                     text: 'Remove',
+                    color: 'red',
                     onClick: function () {
-                        queue.splice( index, 1 );
-                        item.remove();
-                        var items = $( '.picture-details' );
-                        for ( let i = index; i < queue.length; i++ ) {
-                            $( items[ i ] ).data( 'index', parseInt( $( items[ i ] ).data( 'index' ) ) - 1 );
-                        }
+                        removePicture( index, item );
+                    }
+                }
+            ];
 
-                    }
-                },
-                {
-                    text: 'Save',
-                    bold: true,
-                    onClick: function () {
-                        queue[ index ].caption = $( '#caption' ).val();
-                    }
-                },
-            ]
+            myApp.actions( buttons );
+
+        } );
+        //input.on( 'change', onSelect );
+        body.on( 'modal:closed', toggleDone );
+        body.on( 'actions:closed', toggleDone );
+        $( '#open-insta' )
+            .on( 'click', function () {
+                var url = 'https://instagram.com/' + INSTAGRAM_USERNAME;
+                var scheme = 'instagram://user?username=' + INSTAGRAM_USERNAME;
+                openScheme( scheme, url );
+            } );
+        body.on( 'click', '#upload-all', function ( e ) {
+            var num = queue.length;
+            var text = `You can add captions to photos by clicking on their thumbnail. If you are ready, tap OK.`;
+            var title = `Upload ${num} photos to @${INSTAGRAM_USERNAME}'s Instagram ?`;
+            myApp.confirm( text, title, uploadAll );
         } );
 
-    } );
-    //input.on( 'change', onSelect );
-    body.on( 'modal:closed', toggleDone );
-    $('#open-insta').on('click', function(){
-        var url     = 'https://instagram.com/' + INSTAGRAM_USERNAME;
-        var scheme  = 'instagram://user?username=' + INSTAGRAM_USERNAME;
-        openScheme(scheme, url);
-    });
-    body.on( 'click', '#upload-all', function ( e ) {
-        var num = queue.length;
-        var text = `You can add captions to photos by clicking on their thumbnail. If you are ready, tap OK.`;
-        var title = `Upload ${num} photos to @${INSTAGRAM_USERNAME}'s Instagram ?`;
-        myApp.confirm( text, title, uploadAll );
-    } );
+        $( '#save-creds' )
+            .on( 'click', function () {
+                if ( CREDS ) return;
+                var name = $( '#creds-name' )
+                    .val();
+                var handle = $( '#creds-handle' )
+                    .val();
+                if ( name === '' && handle === '' ) {
+                    return myApp.closeModal();
+                }
+                var obj = {
+                    name: name,
+                    handle: handle
+                };
+                CREDS = obj;
+                localStorage.setItem( 'creds', JSON.stringify( obj ) );
+                myApp.closeModal();
+            } );
 
-    $( '#save-creds' ).on( 'click', function () {
-        if ( CREDS ) return;
-        var name = $( '#creds-name' ).val();
-        var handle = $( '#creds-handle' ).val();
-        if ( name === '' && handle === '' ) {
-            return myApp.closeModal();
-        }
-        var obj = {
-            name: name,
-            handle: handle
-        };
-        CREDS = obj;
-        localStorage.setItem( 'creds', JSON.stringify( obj ) );
-        myApp.closeModal();
     } );
-
-} );
